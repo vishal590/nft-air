@@ -25,7 +25,7 @@ contract MemeForest is ReentrancyGuard{
     struct MemeFiles{
         string Memeinfo;
         address Owner;
-        uint filedId;
+        uint fileId;
         bool starred;
         uint Stars;
         uint Likes;
@@ -103,6 +103,125 @@ contract MemeForest is ReentrancyGuard{
 
         NumOfAllMembers.increment();
         uint currentMemberId = NumOfAllMembers.current();
+
+        IdMembers[currentMemberId] = MemeMembers(
+            _name,
+            msg.sender,
+            currentMemberId,
+            0,
+            0,
+            0,
+            _date
+        );
+
+        alreadyAMember[msg.sender] = true;
+
+        emit Memberjoined(
+            currentMemberId,
+            _name,
+            _date,
+            msg.sender,
+            0,
+            0,
+            0,
+            0
+        );
+    }
+
+    function fetchMembers() public view returns(MemeMembers[] memory) {
+        
+        uint currentMemberNum = NumOfAllMembers.current();
+        uint currentIndex = 0;
+        MemeMembers[] memory members = new MemeMembers[] (currentMemberNum);
+
+        for(uint256 index = 0; index < currentMemberNum; index++){
+            uint currenNum = IdMembers[index + 1].MyId;
+            MemeMembers storage memeMem = IdMembers[currenNum];
+            members[currentIndex] = memeMem;
+            currentIndex += 1;
+        }
+        return members;
+    }
+
+    function GetMemberByAddr(address _member) external view returns(MemeMembers[] memory){
+        uint currentMemberNum = NumOfAllMembers.current();
+        uint currentIndex = 0;
+        MemeMembers[] memory foundMember = new MemeMembers[](1);
+        for(uint i = 0; i < currentMemberNum; i++){
+            if(_member == IdMembers[i + 1].MemeberAddress){
+                uint currentmem = IdMembers[i + 1].MyId;
+                MemeMembers storage memMem = IdMembers[currentmem];
+                foundMember[currentIndex] = memMem;
+            }
+        }
+        return foundMember;
+    }
+
+    function IsAMember(address sender) external view returns(bool){
+        bool member = alreadyAMember[sender];
+        return member;
+    }
+
+    function CreateMemeItems(string memory memeinfo, address _owner, string memory _date, string memory _filetype, bool _isDownloadable) public nonReentrant{
+        NumOfAllMemes.increment();
+        uint256 currentMeme = NumOfAllMemes.current();
+        IdMemeFiles[currentMeme] = MemeFiles(
+            memeinfo,
+            _owner,
+            currentMeme,
+            false,
+            0,
+            0,
+            _date,
+            _filetype,
+            _isDownloadable
+        );
+
+        uint currentMemberNum = NumOfAllMembers.current();
+        uint currentNum;
+        uint newMemes;
+
+        for(uint i = 0; i < currentMemberNum; i++){
+            if(_owner == IdMembers[i + 1].MemeberAddress){
+                currentNum = IdMembers[i + 1].MyId;
+                newMemes = IdMembers[currentNum].MyMemes;
+                newMemes += 1;
+                IdMembers[currentNum].MyMemes = newMemes;
+            }
+        }
+
+        emit CreateMeme (
+            currentMeme,
+            memeinfo,
+            _owner,
+            false,
+            0,
+            0,
+            _date,
+            _filetype,
+            _isDownloadable,
+            currentNum,
+            newMemes
+        );
+    }
+
+    function fetchAllMemes() public view returns(MemeFiles[] memory){
+
+        uint currentMemeNum = NumOfAllMemes.current();
+       
+        uint currentIndex = currentMemeNum;
+        MemeFiles[] memory memes = new MemeFiles[] (currentMemeNum);
+
+        // currentMemeNum is size of dynamic array
+
+        for(uint256 index = 0; index < currentMemeNum; index++){
+            uint currenNum = IdMemeFiles[index + 1].fileId;
+            MemeFiles storage memeFiles = IdMemeFiles[currenNum];
+
+            memes[]
+        }
+    }
+
     }
 
 }
