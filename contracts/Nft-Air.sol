@@ -218,9 +218,87 @@ contract MemeForest is ReentrancyGuard{
             uint currenNum = IdMemeFiles[index + 1].fileId;
             MemeFiles storage memeFiles = IdMemeFiles[currenNum];
 
-            memes[]
+            memes[currentIndex - 1] = memeFiles;
+            currentIndex -= 1;
         }
+        return memes;
     }
+
+    function LikeMeme(uint _id) public {
+        uint currentMemeNum = NumOfAllMemes.current();
+        uint currentMemberNum = NumOfAllMembers.current();
+        uint currentNum;
+        uint256 newLikes;
+
+        for(uint i = 0; i < currentMemeNum; i++){
+            if(_id == IdMemeFiles[i + 1].fileId){
+
+                newLikes = IdMemeFiles[i + 1].Likes;
+                newLikes += 1;
+                IdMemeFiles[i + 1].Likes = newLikes;
+                DidyouLike[msg.sender][_id] = true;
+            }
+        }
+
+        for(uint index = 0; index < currentMemberNum; index++) {
+            if(msg.sender == IdMembers[index + 1].MemeberAddress){
+                currentNum = IdMembers[index + 1].MyId;
+            }
+        }
+
+        emit LikingMeme(
+            _id,
+            newLikes,
+            currentNum,
+            msg.sender
+        );
+    }
+
+    function UnLikeMeme(uint _id) public {
+        uint currentMemeNum = NumOfAllMemes.current();
+        uint currentMemeberNum = NumOfAllMembers.current();
+        uint currentNum;
+        uint256 newLikes;
+
+        for(uint i = 0; i < currentMemeNum; i++){
+            if(_id == IdMemeFiles[i + 1].fileId){
+
+                newLikes = IdMemeFiles[i + 1].Likes;
+                newLikes -= 1;
+                IdMemeFiles[i + 1].Likes = newLikes;
+                DidyouLike[msg.sender][_id] = false;
+            }
+        }
+
+        for(uint index = 0; index < currentMemberNum; index++){
+            if(msg.sender == IdMembers[index + 1].MemeberAddress){
+                currentNum = IdMembers[index + 1].MyId;
+            }
+        }
+
+        emit UnLikingMeme(
+            _id,
+            newLikes,
+            currentNum,
+            msg.sender
+        );
+    }
+
+    function WhatDidILike(uint _id, address sender) public view returns(bool) {
+        bool youLiked = DidyouLike[sender][_id];
+        return youLiked;
+    }
+
+    function StarMeme(uint _id) public {
+        uint currentMemeNum = NumOfAllMemes.current();
+        uint currentMemberNum = NumOfAllMembers.current();
+        uint currentNum;
+        uint newstars;
+        uint newstarredMemes;
+    }
+
+
+
 
     }
 
