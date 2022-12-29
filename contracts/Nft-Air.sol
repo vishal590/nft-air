@@ -295,11 +295,99 @@ contract MemeForest is ReentrancyGuard{
         uint currentNum;
         uint newstars;
         uint newstarredMemes;
+
+    for(uint i = 0; i < currentMemeNum; i++){
+        if(_id == IdMemeFiles[i + 1].fileId){
+            IdMemeFiles[_id].starred = true;
+            newstars = IdMemeFiles[_id].Stars;
+            newstars += 1;
+            IdMemeFiles[_id].Stars = newstars;
+            DidyouStar[msg.sender][_id] = true;
+        }
     }
 
+    for(uint index = 0; index < currentMemberNum; index++){
+        if(msg.sender == IdMembers[index + 1].MemeberAddress){
+            currentNum = IdMembers[index + 1].MyId;
+            newstarredMemes = IdMembers[currentNum].MyStarredMemes;
+            newstarredMemes += 1;
+            IdMembers[currentNum].MyStarredMemes = newstarredMemes;
+        }
+    }
 
+    emit StarredMeme(
+        _id,
+        newstars,
+        currentNum,
+        msg.sender,
+        newstarredMemes
+    );
+    }
 
+    function RemoveStarMeme(uint _id) public {
+        uint currentMemeNum = NumOfAllMemes.current();
+        uint currentMemberNum = NumOfAllMembers.current();
+        uint currentNum;
+        uint newstars;
+        uint newstarredMemes;
 
+        for(uint i = 0; i < currentMemeNum; i++){
+            if(_id == IdMemeFiles[i + 1].fileId){
+                IdMemeFiles[_id].starred = false;
+                newstars = IdMemeFiles[_id].Stars;
+                newstars -= 1;
+                IdMemeFiles[_id].Stars = newstars;
+                DidyouStar[msg.sender][_id] = false;
+            }
+        }
+
+        for(uint index = 0; index < currentMemberNum; index++){
+            if(msg.sender == IdMembers[index + 1].MemeberAddress){
+                currentNum = IdMembers[index + 1].MyId;
+                newstarredMemes = IdMembers[currentNum].MyStarredMemes;
+                newstarredMemes -= 1;
+                IdMembers[currentNum].MyStarredMemes = newstarredMemes;
+            }
+        }
+
+        emit UnStarringMeme(
+            _id,
+            newstars,
+            currentNum,
+            msg.sender,
+            newstarredMemes
+        );
+    }
+
+    function WhatDidIStar(uint _id, address sender) public view returns (bool) {
+        bool youStarred = DidyouStar[sender][_id];
+        return youStarred;
+    }
+
+    function fetchMyStarredMemes(address sender) public view returns (MemeFiles[] memory){
+        uint currentMemberNum = NumOfAllMembers.current();
+        uint currentNum;
+
+        for(uint i = 0; i < currentMemberNum; i++){
+            if(sender == IdMembers[i + 1].MemeberAddress){
+                uint val = IdMembers[i + 1].MyId;
+                currentNum = IdMembers[val].MyStarredMemes;
+            }
+        }
+
+        uint currentMemeNum = NumOfAllMembers.current();
+        MemeFiles[] memory memes = new MemeFiles[] (currentNum);
+        uint currentIndex = 0;
+
+        for(uint index = 0; index < currentMemeNum; index++){
+            uint id = IdMemeFiles[index + 1].fileId;
+            if(DidyouStar[sender][id] == true && IdMemeFiles[id].starred == true){
+                MemeFiles storage memeFiles = IdMemeFiles[id];
+                memes[currentIndex] = memeFiles;
+                currentIndex += 1;
+            }
+        }
+        return memes;
     }
 
 }
