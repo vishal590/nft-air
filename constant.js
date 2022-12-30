@@ -1,0 +1,1 @@
+export const Memeforest address = "0xb247ac76961bF61e9E33DF5CA601495d37696EC5"
